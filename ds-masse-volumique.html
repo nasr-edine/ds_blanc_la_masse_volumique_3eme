@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DS blanc – La masse volumique (3e)</title>
+<style>
+:root{--bg:#f7fafd;--line:#dbe6f2;--ink:#14284b;--mut:#51627f;--card:#fff;--acc:#1f5fbf;--hl:#ffd84a;--ok:#1a7f4b;--okbg:#e4f5ec;--ko:#b3261e;--kobg:#fdeceb;--bd:#c7d5e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1a2c;--line:#1b2b45;--ink:#e8eefb;--mut:#9fb0cc;--card:#16243b;--acc:#7db1ff;--hl:#e6b800;--ok:#6fd9a0;--okbg:#12362a;--ko:#ff9a92;--kobg:#3a1c1b;--bd:#2c4163}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1a2c;--line:#1b2b45;--ink:#e8eefb;--mut:#9fb0cc;--card:#16243b;--acc:#7db1ff;--hl:#e6b800;--ok:#6fd9a0;--okbg:#12362a;--ko:#ff9a92;--kobg:#3a1c1b;--bd:#2c4163}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1,h2{font-family:Georgia,"Times New Roman",serif;line-height:1.2}
+h1{font-size:2rem;margin:.2em 0}
+h2{font-size:1.25rem;margin:0 0 .4em;display:inline;background:linear-gradient(transparent 55%,var(--hl) 55%)}
+.card,.ex{background:var(--card);border:1.5px solid var(--bd);border-radius:10px;padding:16px;margin:16px 0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--card);border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:center;padding:8px 16px;gap:8px}
+.timer{font:700 1.4rem Georgia,serif;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--ko)}
+button{font:inherit;font-weight:600;border:2px solid var(--ink);background:var(--hl);color:#14284b;border-radius:8px;padding:8px 16px;cursor:pointer}
+button.sec{background:var(--card);color:var(--ink)}
+button:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--acc);outline-offset:2px}
+.ctx{background:color-mix(in srgb,var(--hl) 18%,var(--card));border-left:4px solid var(--hl);padding:8px 12px;margin:10px 0;border-radius:4px}
+.q{border-top:1px dashed var(--bd);padding:12px 0}
+.q p{margin:0 0 8px}
+.pts{color:var(--mut);font-size:.85rem;white-space:nowrap}
+.opt{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border:1px solid var(--bd);border-radius:6px;margin:5px 0;cursor:pointer}
+input[type=text]{font:inherit;width:9em;padding:6px 8px;border:2px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--ink)}
+.fb{margin-top:8px;padding:8px 12px;border-radius:6px;font-size:.95rem}
+.q.ok .fb{background:var(--okbg);color:var(--ok)}
+.q.ko .fb{background:var(--kobg);color:var(--ko)}
+.big{font:700 3.4rem/1 Georgia,serif}
+.th{margin:10px 0}
+.th .tr{height:12px;background:var(--line);border-radius:6px;overflow:hidden}
+.th .fl{height:100%;background:var(--acc)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+td,th{border:1px solid var(--bd);padding:4px 8px;text-align:left}
+details{margin:8px 0}
+summary{cursor:pointer;font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="bar" id="bar" hidden><span>⏱ Temps restant</span><span class="timer" id="tm">60:00</span><button id="fin">Terminer et corriger</button></div>
+<main>
+<section class="card" id="intro">
+<h1>DS blanc : la masse volumique</h1>
+<p>Physique-chimie, 3e. Conditions réelles : 1 heure, 22 questions, note sur 20, calculatrice autorisée, sans cours. Écris tes réponses numériques avec la virgule ou le point, l’unité est indiquée à côté du champ.</p>
+<p id="best"></p>
+<button id="go">Commencer le DS</button>
+</section>
+<div id="ds" hidden>
+<details open class="card"><summary>Fiche des matériaux</summary>
+<table><tr><th>Matériau</th><th>ρ</th><th>Matériau</th><th>ρ</th></tr>
+<tr><td>Eau</td><td>1,0 g/mL</td><td>Fer</td><td>7,8 g/mL</td></tr>
+<tr><td>Aluminium</td><td>2,7 g/mL</td><td>Cuivre</td><td>8,9 g/mL</td></tr>
+<tr><td>Zinc</td><td>≈ 7,1 g/mL</td><td>Argent</td><td>≈ 10,5 g/mL</td></tr>
+<tr><td>Or</td><td>19,3 g/mL</td><td>Mercure</td><td>13,5 g/mL</td></tr></table></details>
+<div id="qs"></div>
+<div class="row"><button id="fin2">Terminer et corriger</button></div>
+<section class="card" id="res" hidden></section>
+</div>
+</main>
+<script>
+var EX=[
+{th:"Cours",title:"Exercice 1 – Questions de cours",ctx:"",q:[
+{t:"La formule de la masse volumique est :",o:["ρ = m / V","ρ = m × V","ρ = V / m","ρ = m + V"],a:0,p:1,e:"ρ = m / V : la masse divisée par le volume."},
+{t:"1 g/mL est égal à :",o:["1 kg/L","1 g/L","1 kg/m³","1000 kg/L"],a:0,p:1,e:"1 g = 1/1000 kg et 1 mL = 1/1000 L : les deux se compensent, donc 1 g/mL = 1 kg/L = 1 g/cm³."},
+{t:"Le poids se mesure en … avec un … :",o:["newtons, dynamomètre","kilogrammes, balance","newtons, balance","kilogrammes, dynamomètre"],a:0,p:1,e:"P = m × g. La masse se mesure en kg avec une balance, le poids en newtons avec un dynamomètre."}]},
+{th:"Calculs et conversions",title:"Exercice 2 – Calculs et conversions",ctx:"Une éprouvette vide a une masse de 42 g. Remplie avec 60 mL d’un liquide inconnu, sa masse est de 90 g.",q:[
+{t:"Masse du liquide ?",n:48,tol:.01,u:"g",p:1,e:"m = 90 − 42 = 48 g."},
+{t:"Masse volumique du liquide ?",n:.8,tol:.01,u:"g/mL",p:1,e:"ρ = m / V = 48 / 60 = 0,8 g/mL."},
+{t:"Ce liquide, dans l’eau :",o:["flotte","coule"],a:0,p:.5,e:"0,8 est inférieur à 1 (ρ de l’eau) : il flotte."},
+{t:"Convertis cette masse volumique en kg/m³.",n:800,tol:1,u:"kg/m³",p:1,e:"0,8 g/mL = 0,8 kg/L = 800 kg/m³ (1 kg/L = 1000 kg/m³)."},
+{t:"Quel volume occupent 193 g d’or (ρ = 19,3 g/mL) ?",n:10,tol:.05,u:"mL",p:1,e:"V = m / ρ = 193 / 19,3 = 10 mL."}]},
+{th:"Identification",title:"Exercice 3 – Le bijoutier",ctx:"Un vendeur propose un pendentif « en or massif » de masse 15,6 g. Plongé dans une éprouvette contenant 20 mL d’eau, il fait monter le niveau à 22 mL.",q:[
+{t:"Volume du pendentif (déplacement d’eau) ?",n:2,tol:.01,u:"mL",p:1,e:"V = V final − V initial = 22 − 20 = 2 mL."},
+{t:"Masse volumique du pendentif ?",n:7.8,tol:.05,u:"g/mL",p:1,e:"ρ = m / V = 15,6 / 2 = 7,8 g/mL."},
+{t:"Conclusion :",o:["Il est en fer, probablement plaqué or : le vendeur ment","Il est en or massif","Il est en aluminium","On ne peut pas conclure"],a:0,p:1,e:"7,8 g/mL correspond au fer, pas à l’or (19,3 g/mL)."}]},
+{th:"Identification",title:"Exercice 4 – Les plaques métalliques",ctx:"Quatre plaques A, B, C, D mesurent toutes 1 cm × 8 cm × 0,2 cm. Masses : A = 4,3 g ; B = 14,2 g ; C = 12,0 g ; D = 12,0 g.",q:[
+{t:"Volume d’une plaque ?",n:1.6,tol:.01,u:"cm³",p:.5,e:"V = 1 × 8 × 0,2 = 1,6 cm³ = 1,6 mL."},
+{t:"Masse volumique de la plaque B (donne une valeur arrondie au dixième) ?",n:8.9,tol:.1,u:"g/mL",p:1,e:"ρ = 14,2 / 1,6 ≈ 8,9 g/mL : c’est du cuivre. (La plaque A : 4,3 / 1,6 ≈ 2,7 g/mL, aluminium.)"},
+{t:"C et D ont ρ = 7,5 g/mL, trop proche du fer (7,8) et du zinc (7,1). Comment les distinguer ?",o:["Avec un aimant : le fer est attiré, pas le zinc","Avec la couleur uniquement","En les pesant une seconde fois","C’est impossible"],a:0,p:1,e:"Quand les masses volumiques sont trop proches, on utilise une autre propriété : le fer est magnétique, le zinc non."}]},
+{th:"Objet composé",title:"Exercice 5 – L’objet composé",ctx:"Un objet est constitué de 3,0 cm³ de fer et de 5,0 cm³ d’aluminium.",q:[
+{t:"Masse de la partie en fer ?",n:23.4,tol:.05,u:"g",p:1,e:"m = ρ × V = 7,8 × 3,0 = 23,4 g."},
+{t:"Masse de la partie en aluminium ?",n:13.5,tol:.05,u:"g",p:1,e:"m = 2,7 × 5,0 = 13,5 g."},
+{t:"Masse totale de l’objet ?",n:36.9,tol:.05,u:"g",p:.5,e:"23,4 + 13,5 = 36,9 g."},
+{t:"Masse volumique moyenne de l’objet (arrondie au dixième) ?",n:4.6,tol:.1,u:"g/mL",p:.5,e:"V total = 8,0 cm³ donc ρ = 36,9 / 8,0 ≈ 4,6 g/mL. Supérieur à 1 : l’objet coule."}]},
+{th:"Température et climat",title:"Exercice 6 – Température et réchauffement",ctx:"Masse volumique de l’eau : 999,9 kg/m³ à 5 °C et 997 kg/m³ à 25 °C.",q:[
+{t:"Quand la température augmente, la masse volumique de l’eau :",o:["diminue","augmente","ne change pas"],a:0,p:1,e:"Elle passe de 999,9 à 997 kg/m³ : elle diminue."},
+{t:"La masse ne change pas, donc le volume :",o:["augmente (dilatation)","diminue","reste identique"],a:0,p:1.5,e:"ρ = m / V : si m est constante et ρ diminue, V augmente. L’eau se dilate."},
+{t:"Masse de 3,0 m³ d’eau à 25 °C ?",n:2991,tol:1,u:"kg",p:1,e:"m = ρ × V = 997 × 3,0 = 2991 kg."},
+{t:"Deux causes de la montée du niveau des mers :",o:["Dilatation thermique des océans et fonte des glaciers continentaux","Marées et vents","Pluie et évaporation","Ajout de sel dans l’océan"],a:0,p:.5,e:"La dilatation thermique de l’eau et la fonte des glaciers continentaux."}]}
+];
+var $=function(s){return document.querySelector(s)};
+var T=3600,iv=null,t0=0,done=false,ALL=[];
+EX.forEach(function(e){e.q.forEach(function(q){q.th=e.th;ALL.push(q);q.i=ALL.length-1})});
+function fmt(n){return Number(n.toFixed(2)).toString().replace(".",",")}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x}return a}
+function store(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function showBest(){var b=store("ds-mv");$("#best").textContent=b&&typeof b.best==="number"?"Meilleure note : "+fmt(b.best)+" / 20 en "+b.n+" essai"+(b.n>1?"s":"")+".":""}
+function build(){var h="";EX.forEach(function(e){h+="<section class=\"ex\"><h2>"+e.title+"</h2>"+(e.ctx?"<p class=\"ctx\">"+e.ctx+"</p>":"");e.q.forEach(function(q){
+h+="<div class=\"q\" id=\"q"+q.i+"\"><p><b>"+q.t+"</b> <span class=\"pts\">("+fmt(q.p)+" pt)</span></p>";
+if(q.o){shuf(q.o.map(function(_,k){return k})).forEach(function(k){h+="<label class=\"opt\"><input type=\"radio\" name=\"r"+q.i+"\" value=\""+k+"\"><span>"+q.o[k]+"</span></label>"})}
+else h+="<input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" id=\"n"+q.i+"\" aria-label=\"Réponse\"> "+q.u;
+h+="<div class=\"fb\" hidden></div></div>"});h+="</section>"});$("#qs").innerHTML=h}
+function tick(){var s=Math.max(0,T-Math.floor((Date.now()-t0)/1000));$("#tm").textContent=("0"+Math.floor(s/60)).slice(-2)+":"+("0"+s%60).slice(-2);$("#tm").className="timer"+(s<300?" low":"");if(s===0)finish()}
+function start(){done=false;build();$("#intro").hidden=true;$("#res").hidden=true;$("#ds").hidden=false;$("#bar").hidden=false;$("#fin2").parentNode.hidden=false;t0=Date.now();clearInterval(iv);iv=setInterval(tick,500);tick();window.scrollTo(0,0)}
+function finish(){if(done)return;done=true;clearInterval(iv);var used=Math.min(T,Math.floor((Date.now()-t0)/1000));var sc=0,th={};
+ALL.forEach(function(q){var ok=false,shown;var box=$("#q"+q.i);
+if(q.o){var c=box.querySelector("input:checked");ok=!!c&&+c.value===q.a;shown=q.o[q.a];box.querySelectorAll("input").forEach(function(x){x.disabled=true})}
+else{var f=$("#n"+q.i);var v=parseFloat(String(f.value).replace(",",".").replace(/\s/g,""));ok=!isNaN(v)&&Math.abs(v-q.n)<=q.tol;shown=fmt(q.n)+" "+q.u;f.disabled=true}
+th[q.th]=th[q.th]||{g:0,t:0};th[q.th].t+=q.p;if(ok){sc+=q.p;th[q.th].g+=q.p}
+box.className="q "+(ok?"ok":"ko");var fb=box.querySelector(".fb");fb.hidden=false;fb.textContent=(ok?"Correct. ":"Réponse attendue : "+shown+". ")+q.e});
+var b=store("ds-mv")||{best:0,n:0};b.n=(b.n||0)+1;var rec=sc>(b.best||0);if(rec)b.best=sc;store("ds-mv",b);
+var weak=null,wp=101;Object.keys(th).forEach(function(k){var p=th[k].g/th[k].t*100;if(p<wp){wp=p;weak=k}});
+var msg=sc>=16?"Tu es prête pour le jour J. Relis les corrections pour ne pas perdre de points sur les détails.":sc>=12?"Bonne base. Relis les corrections des erreurs, puis retente pour monter ta note.":"Reprends le cours reconstitué, puis retente le DS : chaque essai mélange les propositions.";
+var h="<h2>Résultat</h2><p class=\"big\">"+fmt(sc)+" <span style=\"font-size:1.4rem\">/ 20</span></p><p>"+msg+"</p><p>Temps utilisé : "+Math.floor(used/60)+" min "+used%60+" s. "+(rec?"Nouveau record personnel !":"Meilleure note : "+fmt(b.best)+" / 20.")+"</p><h2 style=\"font-size:1.05rem\">Réussite par thème</h2>";
+Object.keys(th).forEach(function(k){var p=Math.round(th[k].g/th[k].t*100);h+="<div class=\"th\"><div style=\"display:flex;justify-content:space-between\"><span>"+k+"</span><b>"+p+" %</b></div><div class=\"tr\"><div class=\"fl\" style=\"width:"+p+"%\"></div></div></div>"});
+if(wp<100)h+="<p>Thème à retravailler en priorité : <b>"+weak+"</b> ("+Math.round(wp)+" %). Fais défiler pour voir la correction de chaque question.</p>";
+h+="<div class=\"row\"><button id=\"retry\">Retenter le DS</button><button class=\"sec\" id=\"top\">Voir ma note en haut</button></div>";
+var r=$("#res");r.innerHTML=h;r.hidden=false;$("#bar").hidden=true;$("#fin2").parentNode.hidden=true;$("#retry").onclick=start;$("#top").onclick=function(){r.scrollIntoView()};r.scrollIntoView()}
+$("#go").onclick=start;$("#fin").onclick=finish;$("#fin2").onclick=finish;showBest();
+</script>
+</body>
+</html>
